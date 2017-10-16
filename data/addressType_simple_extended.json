@@ -1,0 +1,14 @@
+{
+  "countryCode": "US",
+  "line": "123 Main Street",
+  "extendedLines": [
+    "Care of Homeowner"
+  ],
+  "countrySubDivisions": "PA",
+  "city": "Philadelphia",
+  "postalCode": "19105",
+  "geoLocation": {
+    "latitude": 40.3444569,
+    "longitude": -75.0235191
+  }
+}
