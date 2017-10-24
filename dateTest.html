@@ -1,0 +1,64 @@
+<html lang="en">
+
+<head>
+
+</head>
+
+<body>
+
+
+  <pre>
+    <script type="text/javascript">
+    // See http://en.wikipedia.org/wiki/ISO_8601
+    // Date regular expression from http://www.pelagodesign.com/blog/2009/05/20/iso-8601-date-validation-that-doesnt-suck/
+    // Duration regular expression from https://github.com/cylc/cylc/issues/119#issuecomment-9435533
+    var regex = {
+        'Date' : /^([\+-]?\d{4}(?!\d{2}\b))((-?)((0[1-9]|1[0-2])(\3([12]\d|0[1-9]|3[01]))?|W([0-4]\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\d|[12]\d{2}|3([0-5]\d|6[1-6])))([T\s]((([01]\d|2[0-3])((:?)[0-5]\d)?|24\:?00)([\.,]\d+(?!:))?)?(\17[0-5]\d([\.,]\d+)?)?([zZ]|([\+-])([01]\d|2[0-3]):?([0-5]\d)?)?)?)?$/,
+        'Duration' : /^(R\d*\/)?P(?:\d+(?:\.\d+)?Y)?(?:\d+(?:\.\d+)?M)?(?:\d+(?:\.\d+)?W)?(?:\d+(?:\.\d+)?D)?(?:T(?:\d+(?:\.\d+)?H)?(?:\d+(?:\.\d+)?M)?(?:\d+(?:\.\d+)?S)?)?$/,
+        'Range of Date/Date' : /^([\+-]?\d{4}(?!\d{2}\b))((-?)((0[1-9]|1[0-2])(\3([12]\d|0[1-9]|3[01]))?|W([0-4]\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\d|[12]\d{2}|3([0-5]\d|6[1-6])))([T\s]((([01]\d|2[0-3])((:?)[0-5]\d)?|24\:?00)([\.,]\d+(?!:))?)?(\17[0-5]\d([\.,]\d+)?)?([zZ]|([\+-])([01]\d|2[0-3]):?([0-5]\d)?)?)?)?(\/)([\+-]?\d{4}(?!\d{2}\b))((-?)((0[1-9]|1[0-2])(\3([12]\d|0[1-9]|3[01]))?|W([0-4]\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\d|[12]\d{2}|3([0-5]\d|6[1-6])))([T\s]((([01]\d|2[0-3])((:?)[0-5]\d)?|24\:?00)([\.,]\d+(?!:))?)?(\17[0-5]\d([\.,]\d+)?)?([zZ]|([\+-])([01]\d|2[0-3]):?([0-5]\d)?)?)?)?$/,
+        'Range of Date/Duration' : /^(R\d*\/)?([\+-]?\d{4}(?!\d{2}\b))((-?)((0[1-9]|1[0-2])(\4([12]\d|0[1-9]|3[01]))?|W([0-4]\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\d|[12]\d{2}|3([0-5]\d|6[1-6])))([T\s]((([01]\d|2[0-3])((:?)[0-5]\d)?|24\:?00)([\.,]\d+(?!:))?)?(\18[0-5]\d([\.,]\d+)?)?([zZ]|([\+-])([01]\d|2[0-3]):?([0-5]\d)?)?)?)?(\/)P(?:\d+(?:\.\d+)?Y)?(?:\d+(?:\.\d+)?M)?(?:\d+(?:\.\d+)?W)?(?:\d+(?:\.\d+)?D)?(?:T(?:\d+(?:\.\d+)?H)?(?:\d+(?:\.\d+)?M)?(?:\d+(?:\.\d+)?S)?)?$/,
+        'Range of Duration/Date' : /^(R\d*\/)?P(?:\d+(?:\.\d+)?Y)?(?:\d+(?:\.\d+)?M)?(?:\d+(?:\.\d+)?W)?(?:\d+(?:\.\d+)?D)?(?:T(?:\d+(?:\.\d+)?H)?(?:\d+(?:\.\d+)?M)?(?:\d+(?:\.\d+)?S)?)?\/([\+-]?\d{4}(?!\d{2}\b))((-?)((0[1-9]|1[0-2])(\4([12]\d|0[1-9]|3[01]))?|W([0-4]\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\d|[12]\d{2}|3([0-5]\d|6[1-6])))([T\s]((([01]\d|2[0-3])((:?)[0-5]\d)?|24\:?00)([\.,]\d+(?!:))?)?(\18[0-5]\d([\.,]\d+)?)?([zZ]|([\+-])([01]\d|2[0-3]):?([0-5]\d)?)?)?)?$/
+    }
+    // Many examples taken from http://en.wikipedia.org/wiki/ISO_8601#Time_intervals
+    var testDates = {
+        'year' : "2013",
+        'date' : "2013-01-05",
+        'datetime' : "2013-01-05T04:13:00+00:00",
+        'bad date' : "2013-99-99T04:13:00+00:00",
+        'Duration only' : "P1Y2M10DT2H30M",
+        'Duration with fractions' : "P1.5Y2.5M10.5DT2.5H30.5M",
+        'Week Duration' : "P1W",
+        'Week Duration with fraction' : "P1.5W",
+        'Repeating Duration' : "R/P1D",
+        'Repeating Duration 2' : "R/P1.5W",
+        'Repeating Duration 3' : "R5/P1.5W",
+        'Repeating Duration Fraction' : "R/P5.1Y3.5M3.4W2.5D",
+        'Range with start and end' : "2007-03-01T13:00:00Z/2008-05-11T15:30:00Z",
+        'Range of Date/Duration' : "2007-03-01T13:00:00Z/P1Y2M10DT2H30M",
+        'Range of Date/Duration 2' : "2012-10/P1M",
+        'Range of Date/Duration 3' : "2012-10/P1W",
+        'Range of Date/Duration 4' : "2012-10/P1.5W",
+        'Repeating Date/Duration 1' : "R5/2007-03-01T13:00:00Z/P1Y2M10DT2H30M",
+        'Repeating Date/Duration 2' : "R5/2012-10/P1M",
+        'Repeating Date/Duration 2' : "R/2012-10/P1W",
+        'Range of Duration/Date' : "P1Y2M10DT2H30M/2007-03-01T13:00:00Z",
+        'Range of Duration/Date 2' : "P1Y/2007-03-01",
+        'Repeating Duration/Date' : "R2/P1Y2M10DT2H30M/2007-03-01T13:00:00Z",
+    }
+
+    for (var r in regex) {
+        document.write('\n Testing using ' + r +'\n');
+        for (var d in testDates) {
+            if (regex[r].test(testDates[d])) { document.write('[valid]: '+testDates[d]+'\n'); }
+            else { document.write('[invalid]: '+testDates[d]+'\n'); }
+        }
+        document.write('\n');
+    }
+
+    </script>
+
+</pre>
+
+</body>
+
+</html>
